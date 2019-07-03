@@ -13,7 +13,7 @@ jobs:
           command: docker build -t $IMAGE_NAME:v${CIRCLE_BUILD_NUM} .
   publish-latest:
     environment:
-      IMAGE_NAME: building-on-ci
+      IMAGE_NAME: mycujoo/rtmp-proxy
     docker:
       - image: circleci/buildpack-deps:stretch
     steps:
