@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  rtmp:
+    privileged: true
+    build: .
+    ports:
+      - "1935:1935" # used for live app (incoming RTMP)
+     # to be set in the .env file for local testing
+    environment:
+      - RTMP_ENDPOINT
