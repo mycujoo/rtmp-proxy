@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  build:
+  build_and_publish:
     environment:
       IMAGE_NAME: mycujoo/rtmp-proxy
     docker:
