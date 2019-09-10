@@ -8,8 +8,7 @@ def main():
     conf_str = conf.read()
     
     forwards = os.environ.get('RTMP_ENDPOINT')
-    forwards_str = ""
-    
+
     if forwards == None:
         exit(1)
 
