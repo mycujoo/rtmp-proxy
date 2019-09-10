@@ -1,7 +1,9 @@
 FROM ossrs/srs:3.0.42
 
+RUN apt-get update && apt-get install -y python3
 COPY srs.conf /
 COPY docker/srs.sh /srs.sh
+COPY docker/destinations.py /destinations.py
 
 RUN chmod +x /srs.sh
 
