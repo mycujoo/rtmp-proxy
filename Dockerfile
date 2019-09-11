@@ -1,4 +1,4 @@
-FROM ossrs/srs:3.0.42
+FROM mycujoo/srs:3.0
 
 RUN apt-get update && apt-get install -y python3
 COPY srs.conf /
