@@ -29,7 +29,6 @@ jobs:
             # configure google cloud
             echo ${GCLOUD_SERVICE_KEY} | base64 -d > ${HOME}/gcp-key.json
             gcloud auth activate-service-account --key-file ${HOME}/gcp-key.json
-            gcloud --quiet config set compute/zone ${GOOGLE_COMPUTE_ZONE}
             gcloud --quiet config set project ${GOOGLE_PROJECT_NAME}
             gcloud auth configure-docker
       - run:
