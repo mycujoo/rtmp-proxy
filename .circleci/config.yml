@@ -12,7 +12,7 @@ jobs:
   build_and_publish:
     <<: *defaults
     docker:
-      - image: mycujoo/gcloud-docker:1.141
+      - image: mycujoo/gcloud-docker:1.14
     steps:
       - checkout
       - setup_remote_docker
