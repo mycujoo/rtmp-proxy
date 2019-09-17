@@ -3,7 +3,7 @@ version: 2
 defaults: &defaults
   working_directory: /tmp/build
   environment:
-    IMAGE_NAME: streaming-api
+    IMAGE_NAME: rtmp-proxy
     GOOGLE_PROJECT_NAME_PRODUCTION: mycujoo-streaming-prod
     GOOGLE_PROJECT_NAME_DEVELOPMENT: mycujoo-streaming-dev
     VERSION: 1.0
@@ -31,6 +31,9 @@ jobs:
             gcloud auth activate-service-account --key-file ${HOME}/gcp-key.json
             gcloud --quiet config set project ${GOOGLE_PROJECT_NAME}
             gcloud auth configure-docker
+      - run:
+          name: Export env vars
+          command: echo "export GOOGLE_PROJECT_NAME=\"${GOOGLE_PROJECT_NAME_DEVELOPMENT}\"" >> $BASH_ENV
       - run:
           name: Build image and test
           command: |
