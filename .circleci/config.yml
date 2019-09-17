@@ -1,22 +1,50 @@
+---
 version: 2
+defaults: &defaults
+  working_directory: /tmp/build
+  environment:
+    IMAGE_NAME: streaming-api
+    GOOGLE_PROJECT_NAME_PRODUCTION: mycujoo-streaming-prod
+    GOOGLE_PROJECT_NAME_DEVELOPMENT: mycujoo-streaming-dev
+    VERSION: 1.0
+
 jobs:
   build_and_publish:
-    environment:
-      IMAGE_NAME: mycujoo/rtmp-proxy
+    <<: *defaults
     docker:
-      - image: circleci/buildpack-deps:stretch
+      - image: mycujoo/gcloud-docker:1.141
     steps:
       - checkout
       - setup_remote_docker
       - run:
-          name: Build Docker image
-          command: docker build -t $IMAGE_NAME:v${CIRCLE_BUILD_NUM} .
-      - run:
-          name: Publish Docker Image to Docker Hub
+          name: Configure gcs access
           command: |
-            docker tag $IMAGE_NAME:v${CIRCLE_BUILD_NUM} $IMAGE_NAME:latest
-            echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
-            docker push $IMAGE_NAME:latest
+            # use the correct cluster when deploying application
+            if [[ ${CIRCLE_BRANCH} == *"master"* ]]; then
+                export GOOGLE_PROJECT_NAME=${GOOGLE_PROJECT_NAME_PRODUCTION}
+            else
+                export GOOGLE_PROJECT_NAME=${GOOGLE_PROJECT_NAME_DEVELOPMENT}
+            fi
+
+            # configure google cloud
+            echo ${GCLOUD_SERVICE_KEY} | base64 -d > ${HOME}/gcp-key.json
+            gcloud auth activate-service-account --key-file ${HOME}/gcp-key.json
+            gcloud --quiet config set compute/zone ${GOOGLE_COMPUTE_ZONE}
+            gcloud --quiet config set project ${GOOGLE_PROJECT_NAME}
+            gcloud auth configure-docker
+      - run:
+          name: Build image and test
+          command: |
+            docker build -t eu.gcr.io/${GOOGLE_PROJECT_NAME}/${IMAGE_NAME}:v${CIRCLE_BUILD_NUM} .
+
+            if [[ ${CIRCLE_BRANCH} == *"master"* ]]; then
+              docker tag eu.gcr.io/${GOOGLE_PROJECT_NAME}/${IMAGE_NAME}:v${CIRCLE_BUILD_NUM} eu.gcr.io/${GOOGLE_PROJECT_NAME}/${IMAGE_NAME}:latest
+            fi
+      - run:
+          name: Push docker image
+          command: |
+            docker push eu.gcr.io/${GOOGLE_PROJECT_NAME}/${IMAGE_NAME}
+
 workflows:
   version: 2
   build-master:
